@@ -1,3 +1,5 @@
+package matrixGUI;
+
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
@@ -27,79 +29,10 @@ import javax.swing.border.TitledBorder;
 
 public class RadioTestFrame extends JFrame {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-    private Matrix worker;
-    private JPanel contentPane;
-    private final ButtonGroup operationsGroup = new ButtonGroup();
-    private JComboBox<Integer> multBox;
-    private int[][] intCells;
-    private JRadioButton rbCreateGrid = getRbCreateGrid();
-    private JRadioButton rbCreateMatrix = getRbCreateMatrix();
-    private JRadioButton rbSwapRows = getRbSwapRows();
-    private JRadioButton rbMultRow = getRbMultRow();
-    private JRadioButton rbMultAddRows = getRbMultAddRows();
-    private JPanel matrixPanel = getMatrixPanel();
-    private JPanel field1Label = getField1Label();
-    private JPanel field2Label = getField2Label();
-    private JComboBox<Integer> rowBox;
-    private JComboBox<Integer> colBox;
-    private int row;
-    private int col;
-    private JTextField[][] cells;
-    private JPanel field3Label;
-    private JButton btnAction;
-    private JSlider colSlider;
-    private JSlider rowSlider;
-
-    /**
-     * Launch the application.
-     */
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    RadioTestFrame frame = new RadioTestFrame();
-                    frame.setVisible(true);
-                    frame.newAction();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    public int getValue(JTextField cell) {
-        int value = 0;
-        if (isNumeric(cell.getText())) {
-            value = Integer.parseInt(cell.getText());
-        }
-        return value;
-    }
-
-    public void initEntryGrid(int rows, int cols) {
-        matrixPanel.removeAll();
-        matrixPanel.setLayout(new GridLayout(rows, cols));
-        cells = new JTextField[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                cells[i][j] = new JTextField();
-                cells[i][j].setHorizontalAlignment(JTextField.CENTER);
-                cells[i][j].addActionListener(new cellAction(i, j, cols, rows));
-                matrixPanel.add(cells[i][j]);
-            }
-        }
-        matrixPanel.updateUI();
-    }
-
     private class cellAction implements ActionListener {
+        int col;
         int i;
         int j;
-        int col;
         int row;
 
         public cellAction(int i, int j, int col, int row) {
@@ -126,131 +59,44 @@ public class RadioTestFrame extends JFrame {
         }
     }
 
-    private void selectedButton() {
-        if (rbCreateGrid.isSelected()) {
-            row = getValue(rowBox);
-            col = getValue(colBox);
-            initEntryGrid(row, col);
-            cells[0][0].requestFocusInWindow();
-            rbCreateMatrix.setSelected(true);
-            createMatrixAction();
-            rbCreateGrid.setEnabled(false);
-            rowSlider.setMinimum(1);
-            rowSlider.setMaximum(row);
-            colSlider.setMinimum(1);
-            colSlider.setMaximum(col);
-            rowSlider.setValue(1);
-            colSlider.setValue(1);
-        }
-        else if (rbCreateMatrix.isSelected()) {
-            worker = new Matrix(createArray(row, col));
-            rbSwapRows.setSelected(true);
-            swapRowsAction();
-            rbCreateMatrix.setEnabled(false);
-            toggleEditable();
-        }
-        else if (rbSwapRows.isSelected()) {
-            int row1 = rowSlider.getValue();
-            int row2 = colSlider.getValue();
-            worker.swapRows(row1, row2);
-            updateGUI(1, row1, row2, 0);
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-        }
-        else if (rbMultRow.isSelected()) {
-            int row1 = rowSlider.getValue();
-            int mult = getValue(multBox);
-            worker.multRow(row1, mult);
-            updateGUI(2, row1, 0, mult);
-        }
-        else if (rbMultAddRows.isSelected()) {
-            int row1 = rowSlider.getValue();
-            int row2 = colSlider.getValue();
-            int mult = getValue(multBox);
-            worker.multRowAdd(row1, mult, row2);
-            updateGUI(3, row1, row2, mult);
-        }
-    }
+    private JButton btnAction;
 
-    private void toggleEditable() {
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                cells[i][j].setEditable(false);
-            }
-        }
-    }
+    private JTextField[][] cells;
+    private int col;
+    private JComboBox<Integer> colBox;
+    private JSlider colSlider;
+    private JPanel contentPane;
+    private JPanel field1Label;
+    private JPanel field2Label;
+    private JPanel field3Label;
+    private int[][] intCells;
+    private JPanel matrixPanel;
+    private JComboBox<Integer> multBox;
+    private final ButtonGroup operationsGroup = new ButtonGroup();
+    private JRadioButton rbCreateGrid;
+    private JRadioButton rbCreateMatrix;
+    private JRadioButton rbMultAddRows;
+    private JRadioButton rbMultRow;
+    private JRadioButton rbSwapRows;
+    private int row;
+    private JComboBox<Integer> rowBox;
+    private JSlider rowSlider;
 
-    private void updateGUI(int action, int row1, int row2, int mult) {
-        row1--;
-        row2--;
-        int[][] matrix = worker.getMatrix();
-        switch (action) {
-            case 1:
-                swapRows(matrix, row1, row2);
-                break;
-            case 2:
-                multRow(matrix, row1, mult);
-                break;
-            case 3:
-                multAddRow(matrix, row2, mult);
-                break;
-
-        }
-    }
-
-    private void multAddRow(int[][] matrix, int row2, int mult) {
-        for (int i = 0; i < col; i++) {
-            cells[row2][i].setText(String.valueOf(matrix[row2][i]));
-        }
-    }
-
-    private void multRow(int[][] matrix, int row1, int mult) {
-        for (int i = 0; i < col; i++) {
-            cells[row1][i].setText(String.valueOf(matrix[row1][i]));
-        }
-    }
-
-    private void swapRows(int[][] matrix, int row1, int row2) {
-        for (int c = 0; c < col; c++) {
-            cells[row1][c].setText(String.valueOf(matrix[row1][c]));
-            cells[row2][c].setText(String.valueOf(matrix[row2][c]));
-        }
-    }
-
-    private int getValue(JComboBox<Integer> box) {
-        int value = (int) box.getSelectedItem();
-        return value;
-    }
-
-    public int[][] createArray(int rows, int cols) {
-        intCells = new int[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                intCells[i][j] = getValue(cells[i][j]);
-                if (getValue(cells[i][j]) == 0) {
-                    cells[i][j].setText("0");
-                }
-            }
-        }
-        return intCells;
-    }
-
-    public boolean isNumeric(String str) {
-        try {
-            @SuppressWarnings("unused")
-            int d = Integer.parseInt(str);
-        }
-        catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
-    }
+    private Matrix worker;
 
     /**
      * Create the frame.
      */
     public RadioTestFrame() {
+        setTitle("Matrix Row Operations");
+        setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 450, 394);
+        setBounds(100, 100, 600, 550);
 
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
@@ -551,6 +397,240 @@ public class RadioTestFrame extends JFrame {
         matrixPanel.setLayout(new GridLayout(1, 0, 0, 0));
     }
 
+    /**
+     * Launch the application.
+     */
+    public static void main(String[] args) {
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    RadioTestFrame frame = new RadioTestFrame();
+                    frame.setVisible(true);
+                    frame.newAction();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public int[][] createArray(int rows, int cols) {
+        intCells = new int[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                intCells[i][j] = getValue(cells[i][j]);
+                if (getValue(cells[i][j]) == 0) {
+                    cells[i][j].setText("0");
+                }
+            }
+        }
+        return intCells;
+    }
+
+    public JButton getBtnAction() {
+        return btnAction;
+    }
+
+    public JComboBox<Integer> getColBox() {
+        return colBox;
+    }
+
+    public JSlider getColSlider() {
+        return colSlider;
+    }
+
+    public JPanel getField1Label() {
+        return field1Label;
+    }
+
+    public JPanel getField2Label() {
+        return field2Label;
+    }
+
+    public JPanel getField3Label() {
+        return field3Label;
+    }
+
+    public JPanel getMatrixPanel() {
+        return matrixPanel;
+    }
+
+    public JRadioButton getRbCreateGrid() {
+        return rbCreateGrid;
+    }
+
+    public JRadioButton getRbCreateMatrix() {
+        return rbCreateMatrix;
+    }
+
+    public JRadioButton getRbMultAddRows() {
+        return rbMultAddRows;
+    }
+
+    public JRadioButton getRbMultRow() {
+        return rbMultRow;
+    }
+
+    public JRadioButton getRbSwapRows() {
+        return rbSwapRows;
+    }
+
+    public JComboBox<Integer> getRowBox() {
+        return rowBox;
+    }
+
+    public JSlider getRowSlider() {
+        return rowSlider;
+    }
+
+    public int getValue(JTextField cell) {
+        int value = 0;
+        if (isNumeric(cell.getText())) {
+            value = Integer.parseInt(cell.getText());
+        }
+        return value;
+    }
+
+    public void initEntryGrid(int rows, int cols) {
+        matrixPanel.removeAll();
+        matrixPanel.setLayout(new GridLayout(rows, cols));
+        cells = new JTextField[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                cells[i][j] = new JTextField();
+                cells[i][j].setHorizontalAlignment(JTextField.CENTER);
+                cells[i][j].addActionListener(new cellAction(i, j, cols, rows));
+                matrixPanel.add(cells[i][j]);
+            }
+        }
+        matrixPanel.updateUI();
+    }
+
+    public boolean isNumeric(String str) {
+        try {
+            @SuppressWarnings("unused")
+            int d = Integer.parseInt(str);
+        }
+        catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
+    private int getValue(JComboBox<Integer> box) {
+        int value = (int) box.getSelectedItem();
+        return value;
+    }
+
+    private void multAddRow(int[][] matrix, int row2, int mult) {
+        for (int i = 0; i < col; i++) {
+            cells[row2][i].setText(String.valueOf(matrix[row2][i]));
+        }
+    }
+
+    private void multRow(int[][] matrix, int row1, int mult) {
+        for (int i = 0; i < col; i++) {
+            cells[row1][i].setText(String.valueOf(matrix[row1][i]));
+        }
+    }
+
+    private void selectedButton() {
+        if (rbCreateGrid.isSelected()) {
+            row = getValue(rowBox);
+            col = getValue(colBox);
+            initEntryGrid(row, col);
+            cells[0][0].requestFocusInWindow();
+            rbCreateMatrix.setSelected(true);
+            createMatrixAction();
+            rbCreateGrid.setEnabled(false);
+            rowSlider.setMinimum(1);
+            rowSlider.setMaximum(row);
+            colSlider.setMinimum(1);
+            colSlider.setMaximum(col);
+            rowSlider.setValue(1);
+            colSlider.setValue(1);
+        }
+        else if (rbCreateMatrix.isSelected()) {
+            worker = new Matrix(createArray(row, col));
+            rbSwapRows.setSelected(true);
+            swapRowsAction();
+            rbCreateMatrix.setEnabled(false);
+            toggleEditable();
+        }
+        else if (rbSwapRows.isSelected()) {
+            int row1 = rowSlider.getValue();
+            int row2 = colSlider.getValue();
+            worker.swapRows(row1, row2);
+            updateGUI(1, row1, row2, 0);
+
+        }
+        else if (rbMultRow.isSelected()) {
+            int row1 = rowSlider.getValue();
+            int mult = getValue(multBox);
+            worker.multRow(row1, mult);
+            updateGUI(2, row1, 0, mult);
+        }
+        else if (rbMultAddRows.isSelected()) {
+            int row1 = rowSlider.getValue();
+            int row2 = colSlider.getValue();
+            int mult = getValue(multBox);
+            worker.multRowAdd(row1, mult, row2);
+            updateGUI(3, row1, row2, mult);
+        }
+    }
+
+    private void swapRows(int[][] matrix, int row1, int row2) {
+        for (int c = 0; c < col; c++) {
+            cells[row1][c].setText(String.valueOf(matrix[row1][c]));
+            cells[row2][c].setText(String.valueOf(matrix[row2][c]));
+        }
+    }
+
+    private void toggleEditable() {
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                cells[i][j].setEditable(false);
+            }
+        }
+    }
+
+    private void updateGUI(int action, int row1, int row2, int mult) {
+        row1--;
+        row2--;
+        int[][] matrix = worker.getMatrix();
+        switch (action) {
+            case 1:
+                swapRows(matrix, row1, row2);
+                break;
+            case 2:
+                multRow(matrix, row1, mult);
+                break;
+            case 3:
+                multAddRow(matrix, row2, mult);
+                break;
+
+        }
+    }
+
+    protected void createGridAction() {
+        field1Label.setVisible(true);
+        field2Label.setVisible(true);
+        field3Label.setVisible(false);
+        rowSlider.setVisible(false);
+        colSlider.setVisible(false);
+        rowBox.setVisible(true);
+        colBox.setVisible(true);
+        field1Label.setBorder(new TitledBorder("Rows"));
+        field2Label.setBorder(new TitledBorder("Columns"));
+        rbCreateMatrix.setEnabled(false);
+        rbMultAddRows.setEnabled(false);
+        rbMultRow.setEnabled(false);
+        rbSwapRows.setEnabled(false);
+
+    }
+
     protected void createMatrixAction() {
         field1Label.setVisible(false);
         field2Label.setVisible(false);
@@ -579,6 +659,14 @@ public class RadioTestFrame extends JFrame {
         field1Label.setBorder(new TitledBorder("Row"));
     }
 
+    protected void newAction() {
+        rbCreateGrid.setEnabled(true);
+        rbCreateMatrix.setEnabled(true);
+        matrixPanel.removeAll();
+        rbCreateGrid.setSelected(true);
+        createGridAction();
+    }
+
     protected void swapRowsAction() {
         field1Label.setVisible(true);
         field2Label.setVisible(true);
@@ -593,86 +681,5 @@ public class RadioTestFrame extends JFrame {
         rbMultRow.setEnabled(true);
         rbMultAddRows.setEnabled(true);
 
-    }
-
-    protected void createGridAction() {
-        field1Label.setVisible(true);
-        field2Label.setVisible(true);
-        field3Label.setVisible(false);
-        rowSlider.setVisible(false);
-        colSlider.setVisible(false);
-        rowBox.setVisible(true);
-        colBox.setVisible(true);
-        field1Label.setBorder(new TitledBorder("Rows"));
-        field2Label.setBorder(new TitledBorder("Columns"));
-        rbCreateMatrix.setEnabled(false);
-        rbMultAddRows.setEnabled(false);
-        rbMultRow.setEnabled(false);
-        rbSwapRows.setEnabled(false);
-
-    }
-
-    protected void newAction() {
-        rbCreateGrid.setEnabled(true);
-        rbCreateMatrix.setEnabled(true);
-        matrixPanel.removeAll();
-        rbCreateGrid.setSelected(true);
-        createGridAction();
-    }
-
-    public JRadioButton getRbCreateGrid() {
-        return rbCreateGrid;
-    }
-
-    public JRadioButton getRbCreateMatrix() {
-        return rbCreateMatrix;
-    }
-
-    public JRadioButton getRbSwapRows() {
-        return rbSwapRows;
-    }
-
-    public JRadioButton getRbMultRow() {
-        return rbMultRow;
-    }
-
-    public JRadioButton getRbMultAddRows() {
-        return rbMultAddRows;
-    }
-
-    public JPanel getMatrixPanel() {
-        return matrixPanel;
-    }
-
-    public JPanel getField1Label() {
-        return field1Label;
-    }
-
-    public JPanel getField2Label() {
-        return field2Label;
-    }
-
-    public JComboBox<Integer> getRowBox() {
-        return rowBox;
-    }
-
-    public JComboBox<Integer> getColBox() {
-        return colBox;
-    }
-
-    public JPanel getField3Label() {
-        return field3Label;
-    }
-
-    public JButton getBtnAction() {
-        return btnAction;
-    }
-
-    public JSlider getColSlider() {
-        return colSlider;
-    }
-
-    public JSlider getRowSlider() {
-        return rowSlider;
     }
 }
